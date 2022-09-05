@@ -105,7 +105,6 @@ typedef struct
                                 This parameter must be a value between 0 and (max number of pages in the bank - 1) */
 } FLASH_OBProgramInitTypeDef;
 
-
 /**
   * @brief  FLASH Procedure structure definition
   */

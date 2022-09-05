@@ -21,7 +21,7 @@
 /// high-bandwidth 3-phase motor control for robots
 /// Written by Ben Katz, with much inspiration from Bayley Wang, Nick Kirkby, Shane Colton, David Otten, and others
 /// Hardware documentation can be found at build-its.blogspot.com
-/// Ported to STM32G4 by Joey Byrnes
+/// Ported to STM32G474 by Joey Byrnes
 
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
@@ -139,6 +139,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+  //SysTick->CTRL = 0b011;
 
   /* USER CODE END SysInit */
 
@@ -187,6 +188,7 @@ int main(void)
   if(isnan(V_MIN)){V_MIN = -65.0f;}
 
   printf("\r\nFirmware Version Number: %.2f\r\n", VERSION_NUM);
+  printf("\r\nRoboDesignLab Port to STM32G4\r\n", VERSION_NUM);
 
   /* Controller Setup */
   if(PHASE_ORDER){							// Timer channel to phase mapping
@@ -334,27 +336,6 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM1 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM1) {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-
-  /* USER CODE END Callback 1 */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

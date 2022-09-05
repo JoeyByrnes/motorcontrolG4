@@ -16,7 +16,7 @@
 /* ADC */
 
 #define ADC_CH_MAIN		hadc1				// ADC channel handle which drives simultaneous mode
-#define ADC_CH_IA		hadc1					// Phase A current sense ADC channel handle.  0 = unused
+#define ADC_CH_IA		hadc1				// Phase A current sense ADC channel handle.  0 = unused
 #define ADC_CH_IB		hadc2				// Phase B current sense ADC channel handle.  0 = unused
 #define ADC_CH_IC		hadc3				// Phase C current sense ADC channel handle.  0 = unused
 #define ADC_CH_VBUS		hadc4				// Bus voltage ADC channel handle.  0 = unused
