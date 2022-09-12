@@ -11,6 +11,12 @@
 #include "hw_config.h"
 #include "user_config.h"
 
+#define AS4047D_CS1_Port GPIOB
+#define AS4047D_CS1_Pin GPIO_PIN_11
+#define ENC_CS_HIGH AS4047D_CS1_Port->BSRR=(uint32_t)AS4047D_CS1_Pin
+#define ENC_CS_LOW AS4047D_CS1_Port->BRR=(uint32_t)AS4047D_CS1_Pin
+#define READ_POS_REG 0xFFFF
+
 void ps_warmup(EncoderStruct * encoder, int n){
 	/* Hall position sensors noisy on startup.  Take a bunch of samples to clear this data */
 	for(int i = 0; i<n; i++){
@@ -20,6 +26,21 @@ void ps_warmup(EncoderStruct * encoder, int n){
 		while( ENC_SPI.State == HAL_SPI_STATE_BUSY );  					// wait for transmission complete
 		HAL_GPIO_WritePin(ENC_CS, GPIO_PIN_SET ); 	// CS high
 	}
+}
+
+uint16_t AS5047_Read_Pos()
+{
+	ENC_CS_LOW;
+	while ((SPI2->SR & SPI_SR_BSY) != 0);
+	SPI2->DR = READ_POS_REG;
+	SPI2->CR1 |= SPI_CR1_SPE;
+	while ((SPI2->SR & SPI_SR_RXNE) == 0);
+	uint16_t result = SPI2->DR;
+	while ((SPI2->SR & SPI_SR_TXE) == 0);
+	while ((SPI2->SR & SPI_SR_BSY) != 0);
+	SPI2->CR1 &= ~(SPI_CR1_SPE);
+	ENC_CS_HIGH;
+	return (result & 0x3FFF);
 }
 
 void ps_sample(EncoderStruct * encoder, float dt){
@@ -33,12 +54,13 @@ void ps_sample(EncoderStruct * encoder, float dt){
 	//memmove(&encoder->angle_multiturn[1], &encoder->angle_multiturn[0], (N_POS_SAMPLES-1)*sizeof(float)); // this is much slower for some reason
 
 	/* SPI read/write */
-	encoder->spi_tx_word = ENC_READ_WORD;
-	HAL_GPIO_WritePin(ENC_CS, GPIO_PIN_RESET ); 	// CS low
-	HAL_SPI_TransmitReceive(&ENC_SPI, (uint8_t*)encoder->spi_tx_buff, (uint8_t *)encoder->spi_rx_buff, 1, 100);
-	while( ENC_SPI.State == HAL_SPI_STATE_BUSY );  					// wait for transmission complete
-	HAL_GPIO_WritePin(ENC_CS, GPIO_PIN_SET ); 	// CS high
-	encoder->raw = encoder ->spi_rx_word;
+//	encoder->spi_tx_word = ENC_READ_WORD;
+//	HAL_GPIO_WritePin(ENC_CS, GPIO_PIN_RESET ); 	// CS low
+//	HAL_SPI_TransmitReceive(&ENC_SPI, (uint8_t*)encoder->spi_tx_buff, (uint8_t *)encoder->spi_rx_buff, 2, 100);
+//	while( ENC_SPI.State == HAL_SPI_STATE_BUSY );  					// wait for transmission complete
+//	HAL_GPIO_WritePin(ENC_CS, GPIO_PIN_SET ); 	// CS high
+//	encoder->raw = encoder ->spi_rx_word;
+	encoder->raw = AS5047_Read_Pos(); // JB
 
 	/* Linearization */
 	int off_1 = encoder->offset_lut[(encoder->raw)>>9];				// lookup table lower entry

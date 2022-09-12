@@ -27,15 +27,25 @@ void set_dtc(ControllerStruct *controller){
 		dtc_w = 1.0f - controller->dtc_w;
 	}
 	/* Handle phase order swapping so that voltage/current/torque match encoder direction */
-	if(!PHASE_ORDER){
-		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_U, ((TIM_PWM.Instance->ARR))*dtc_u);
-		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_V, ((TIM_PWM.Instance->ARR))*dtc_v);
-		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_W, ((TIM_PWM.Instance->ARR))*dtc_w);
+//	if(!PHASE_ORDER){
+//		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_U, ((TIM_PWM.Instance->ARR))*dtc_u);
+//		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_V, ((TIM_PWM.Instance->ARR))*dtc_v);
+//		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_W, ((TIM_PWM.Instance->ARR))*dtc_w);
+//	}
+//	else{
+//		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_V, ((TIM_PWM.Instance->ARR))*dtc_u);
+//		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_U, ((TIM_PWM.Instance->ARR))*dtc_v);
+//		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_W, ((TIM_PWM.Instance->ARR))*dtc_w);
+//	}
+	if(PHASE_ORDER){                                                         // Check which phase order to use,
+		TIM2->CCR3 = (TIM_PWM.Instance->ARR)*(1.0f-controller->dtc_u);                        // Write duty cycles
+		TIM2->CCR2 = (TIM_PWM.Instance->ARR)*(1.0f-controller->dtc_v);
+		TIM2->CCR1 = (TIM_PWM.Instance->ARR)*(1.0f-controller->dtc_w);
 	}
 	else{
-		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_V, ((TIM_PWM.Instance->ARR))*dtc_u);
-		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_U, ((TIM_PWM.Instance->ARR))*dtc_v);
-		__HAL_TIM_SET_COMPARE(&TIM_PWM, TIM_CH_W, ((TIM_PWM.Instance->ARR))*dtc_w);
+		TIM2->CCR3 = (TIM_PWM.Instance->ARR)*(1.0f-controller->dtc_u);
+		TIM2->CCR1 = (TIM_PWM.Instance->ARR)*(1.0f-controller->dtc_v);
+		TIM2->CCR2 =  (TIM_PWM.Instance->ARR)*(1.0f-controller->dtc_w);
 	}
 }
 

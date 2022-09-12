@@ -7,6 +7,10 @@
 extern "C" {
 #endif
 
+#define MAX_INTS_IN_FLASH 10
+
+#define MAX_FLOATS_IN_FLASH 40
+
 
 #define I_BW                    __float_reg[2]                                  // Current loop bandwidth
 #define I_MAX                   __float_reg[3]                                  // Current limit

@@ -15,46 +15,55 @@ extern "C" {
 #include "stm32g4xx.h"
 #include "stdbool.h"
 
+#define FLASH_PAGE_SIZE   ((uint32_t)0x800) // 2K page
+#define FLASH_PAGE_PER_BANK 128
+#define FLASH_BANK1_BASE ((uint32_t)0x08000000) //FLASH_BASE
+#define FLASH_BANK2_BASE (FLASH_BANK1_BASE + 0x800*128)
+
+#define PW_BASE ((uint32_t)0x08040000) // 0x08004000
+
+#define FLASH_ROW_SIZE          32
+
 /* Base address of the Flash sectors */
-#define ADDR_FLASH_SECTOR_0     ((uint32_t)0x08000000) /* Base @ of Sector 0, 16 Kbytes */
-#define ADDR_FLASH_SECTOR_1     ((uint32_t)0x08004000) /* Base @ of Sector 1, 16 Kbytes */
-#define ADDR_FLASH_SECTOR_2     ((uint32_t)0x08008000) /* Base @ of Sector 2, 16 Kbytes */
-#define ADDR_FLASH_SECTOR_3     ((uint32_t)0x0800C000) /* Base @ of Sector 3, 16 Kbytes */
-#define ADDR_FLASH_SECTOR_4     ((uint32_t)0x08010000) /* Base @ of Sector 4, 64 Kbytes */
-#define ADDR_FLASH_SECTOR_5     ((uint32_t)0x08020000) /* Base @ of Sector 5, 128 Kbytes */
-#define ADDR_FLASH_SECTOR_6     ((uint32_t)0x08040000) /* Base @ of Sector 6, 128 Kbytes */
-#define ADDR_FLASH_SECTOR_7     ((uint32_t)0x08060000) /* Base @ of Sector 7, 128 Kbytes */
+//#define ADDR_FLASH_SECTOR_0     FLASH_BANK2_BASE+FLASH_PAGE_SIZE*0  //((uint32_t)0x08000000) /* Base @ of Sector 0, 2 Kbytes */
+//#define ADDR_FLASH_SECTOR_1     FLASH_BANK2_BASE+FLASH_PAGE_SIZE*1  //((uint32_t)0x08000800) /* Base @ of Sector 1, 2 Kbytes */
+//#define ADDR_FLASH_SECTOR_2     FLASH_BANK2_BASE+FLASH_PAGE_SIZE*2  //((uint32_t)0x08001000) /* Base @ of Sector 2, 2 Kbytes */
+//#define ADDR_FLASH_SECTOR_3     FLASH_BANK2_BASE+FLASH_PAGE_SIZE*3  //((uint32_t)0x08001800) /* Base @ of Sector 3, 2 Kbytes */
+//#define ADDR_FLASH_SECTOR_4     FLASH_BANK2_BASE+FLASH_PAGE_SIZE*4  //((uint32_t)0x08002000) /* Base @ of Sector 4, 2 Kbytes */
+//#define ADDR_FLASH_SECTOR_5     FLASH_BANK2_BASE+FLASH_PAGE_SIZE*5  //((uint32_t)0x08002800) /* Base @ of Sector 5, 2 Kbytes */
+//#define ADDR_FLASH_SECTOR_6     FLASH_BANK2_BASE+FLASH_PAGE_SIZE*6  //((uint32_t)0x08003000) /* Base @ of Sector 6, 2 Kbytes */
+//#define ADDR_FLASH_SECTOR_7     FLASH_BANK2_BASE+FLASH_PAGE_SIZE*7  //((uint32_t)0x08003800) /* Base @ of Sector 7, 2 Kbytes */
 
-#define FLASH_Sector_0     ((uint16_t)0x0000) /*!< Sector Number 0   */
-#define FLASH_Sector_1     ((uint16_t)0x0008) /*!< Sector Number 1   */
-#define FLASH_Sector_2     ((uint16_t)0x0010) /*!< Sector Number 2   */
-#define FLASH_Sector_3     ((uint16_t)0x0018) /*!< Sector Number 3   */
-#define FLASH_Sector_4     ((uint16_t)0x0020) /*!< Sector Number 4   */
-#define FLASH_Sector_5     ((uint16_t)0x0028) /*!< Sector Number 5   */
-#define FLASH_Sector_6     ((uint16_t)0x0030) /*!< Sector Number 6   */
-#define FLASH_Sector_7     ((uint16_t)0x0038) /*!< Sector Number 7   */
-#define FLASH_Sector_8     ((uint16_t)0x0040) /*!< Sector Number 8   */
-#define FLASH_Sector_9     ((uint16_t)0x0048) /*!< Sector Number 9   */
-#define FLASH_Sector_10    ((uint16_t)0x0050) /*!< Sector Number 10  */
-#define FLASH_Sector_11    ((uint16_t)0x0058) /*!< Sector Number 11  */
-#define FLASH_Sector_12    ((uint16_t)0x0080) /*!< Sector Number 12  */
-#define FLASH_Sector_13    ((uint16_t)0x0088) /*!< Sector Number 13  */
-#define FLASH_Sector_14    ((uint16_t)0x0090) /*!< Sector Number 14  */
-#define FLASH_Sector_15    ((uint16_t)0x0098) /*!< Sector Number 15  */
-#define FLASH_Sector_16    ((uint16_t)0x00A0) /*!< Sector Number 16  */
-#define FLASH_Sector_17    ((uint16_t)0x00A8) /*!< Sector Number 17  */
-#define FLASH_Sector_18    ((uint16_t)0x00B0) /*!< Sector Number 18  */
-#define FLASH_Sector_19    ((uint16_t)0x00B8) /*!< Sector Number 19  */
-#define FLASH_Sector_20    ((uint16_t)0x00C0) /*!< Sector Number 20  */
-#define FLASH_Sector_21    ((uint16_t)0x00C8) /*!< Sector Number 21  */
-#define FLASH_Sector_22    ((uint16_t)0x00D0) /*!< Sector Number 22  */
-#define FLASH_Sector_23    ((uint16_t)0x00D8) /*!< Sector Number 23  */
-
-
-static uint32_t __SECTOR_ADDRS[] = {ADDR_FLASH_SECTOR_0, ADDR_FLASH_SECTOR_1, ADDR_FLASH_SECTOR_2, ADDR_FLASH_SECTOR_3,
-                             ADDR_FLASH_SECTOR_4, ADDR_FLASH_SECTOR_5, ADDR_FLASH_SECTOR_6, ADDR_FLASH_SECTOR_7};
-static uint32_t __SECTORS[] = {FLASH_Sector_0, FLASH_Sector_1, FLASH_Sector_2, FLASH_Sector_3,
-                             FLASH_Sector_4, FLASH_Sector_6, FLASH_Sector_6, FLASH_Sector_7};
+//#define FLASH_Sector_0     ((uint16_t)0x0000) /*!< Sector Number 0   */
+//#define FLASH_Sector_1     ((uint16_t)0x0008) /*!< Sector Number 1   */
+//#define FLASH_Sector_2     ((uint16_t)0x0010) /*!< Sector Number 2   */
+//#define FLASH_Sector_3     ((uint16_t)0x0018) /*!< Sector Number 3   */
+//#define FLASH_Sector_4     ((uint16_t)0x0020) /*!< Sector Number 4   */
+//#define FLASH_Sector_5     ((uint16_t)0x0028) /*!< Sector Number 5   */
+//#define FLASH_Sector_6     ((uint16_t)0x0030) /*!< Sector Number 6   */
+//#define FLASH_Sector_7     ((uint16_t)0x0038) /*!< Sector Number 7   */
+//#define FLASH_Sector_8     ((uint16_t)0x0040) /*!< Sector Number 8   */
+//#define FLASH_Sector_9     ((uint16_t)0x0048) /*!< Sector Number 9   */
+//#define FLASH_Sector_10    ((uint16_t)0x0050) /*!< Sector Number 10  */
+//#define FLASH_Sector_11    ((uint16_t)0x0058) /*!< Sector Number 11  */
+//#define FLASH_Sector_12    ((uint16_t)0x0080) /*!< Sector Number 12  */
+//#define FLASH_Sector_13    ((uint16_t)0x0088) /*!< Sector Number 13  */
+//#define FLASH_Sector_14    ((uint16_t)0x0090) /*!< Sector Number 14  */
+//#define FLASH_Sector_15    ((uint16_t)0x0098) /*!< Sector Number 15  */
+//#define FLASH_Sector_16    ((uint16_t)0x00A0) /*!< Sector Number 16  */
+//#define FLASH_Sector_17    ((uint16_t)0x00A8) /*!< Sector Number 17  */
+//#define FLASH_Sector_18    ((uint16_t)0x00B0) /*!< Sector Number 18  */
+//#define FLASH_Sector_19    ((uint16_t)0x00B8) /*!< Sector Number 19  */
+//#define FLASH_Sector_20    ((uint16_t)0x00C0) /*!< Sector Number 20  */
+//#define FLASH_Sector_21    ((uint16_t)0x00C8) /*!< Sector Number 21  */
+//#define FLASH_Sector_22    ((uint16_t)0x00D0) /*!< Sector Number 22  */
+//#define FLASH_Sector_23    ((uint16_t)0x00D8) /*!< Sector Number 23  */
+//
+//
+//static uint32_t __SECTOR_ADDRS[] = {ADDR_FLASH_SECTOR_0, ADDR_FLASH_SECTOR_1, ADDR_FLASH_SECTOR_2, ADDR_FLASH_SECTOR_3,
+//                             ADDR_FLASH_SECTOR_4, ADDR_FLASH_SECTOR_5, ADDR_FLASH_SECTOR_6, ADDR_FLASH_SECTOR_7};
+//static uint32_t __SECTORS[] = {FLASH_Sector_0, FLASH_Sector_1, FLASH_Sector_2, FLASH_Sector_3,
+//                             FLASH_Sector_4, FLASH_Sector_6, FLASH_Sector_6, FLASH_Sector_7};
 
 typedef struct {
 	bool ready;

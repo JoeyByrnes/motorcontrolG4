@@ -21,13 +21,13 @@
 /// high-bandwidth 3-phase motor control for robots
 /// Written by Ben Katz, with much inspiration from Bayley Wang, Nick Kirkby, Shane Colton, David Otten, and others
 /// Hardware documentation can be found at build-its.blogspot.com
-/// Ported to STM32G474 by Joey Byrnes
+///
+/// Edited and ported to STM32G474 by Joey Byrnes
 
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
-#include "dac.h"
 #include "dma.h"
 #include "fdcan.h"
 #include "spi.h"
@@ -61,6 +61,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+/* !!! Be careful the user area should be in another bank than the code !!! */
+#define FLASH_USER_START_ADDR   ((uint32_t)0x08040000)   /* Start @ of user Flash area */
+
+
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -76,8 +81,8 @@
 /* USER CODE BEGIN PV */
 
 /* Flash Registers */
-float __float_reg[64];
-int __int_reg[256];
+float __float_reg[MAX_FLOATS_IN_FLASH];
+int __int_reg[MAX_INTS_IN_FLASH];
 PreferenceWriter prefs;
 
 int count = 0;
@@ -113,7 +118,6 @@ void SystemClock_Config(void);
 
 
 
-
 /* USER CODE END 0 */
 
 /**
@@ -139,7 +143,6 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  //SysTick->CTRL = 0b011;
 
   /* USER CODE END SysInit */
 
@@ -150,19 +153,21 @@ int main(void)
   MX_ADC2_Init();
   MX_ADC3_Init();
   MX_ADC5_Init();
-  MX_DAC1_Init();
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_TIM2_Init();
   MX_USART3_UART_Init();
-  MX_TIM8_Init();
   MX_ADC4_Init();
   MX_FDCAN1_Init();
   /* USER CODE BEGIN 2 */
 
   /* Load settings from flash */
-  preference_writer_init(&prefs, 6);
+  preference_writer_init(&prefs, 0);
   preference_writer_load(prefs);
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+
+
 
   /* Sanitize configs in case flash is empty*/
   if(E_ZERO==-1){E_ZERO = 0;}
@@ -187,8 +192,8 @@ int main(void)
   if(isnan(V_MAX)){V_MAX = 65.0f;}
   if(isnan(V_MIN)){V_MIN = -65.0f;}
 
-  printf("\r\nFirmware Version Number: %.2f\r\n", VERSION_NUM);
-  printf("\r\nRoboDesignLab Port to STM32G4\r\n", VERSION_NUM);
+  printf("\r\nFirmware Version Number: %.2f\n", VERSION_NUM);
+  printf("\r\nPorted to STM32G4 by RoboDesign Lab UIUC\r\n\n");
 
   /* Controller Setup */
   if(PHASE_ORDER){							// Timer channel to phase mapping
@@ -240,7 +245,8 @@ int main(void)
   HAL_Delay(1);
   drv_disable_gd(drv);
   HAL_Delay(1);
-  //drv_enable_gd(drv);   */
+
+// drv_enable_gd(drv);
   printf("ADC A OFFSET: %d     ADC B OFFSET: %d\r\n", controller.adc_a_offset, controller.adc_b_offset);
 
   /* Turn on PWM */
@@ -267,6 +273,7 @@ int main(void)
   /* Turn on interrupts */
   HAL_UART_Receive_IT(&huart3, (uint8_t *)Serial2RxBuffer, 1);
   HAL_TIM_Base_Start_IT(&htim2);
+
 
   /* USER CODE END 2 */
 
@@ -308,8 +315,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV1;
-  RCC_OscInitStruct.PLL.PLLN = 21;
+  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
+  RCC_OscInitStruct.PLL.PLLN = 85;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -324,8 +331,8 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {

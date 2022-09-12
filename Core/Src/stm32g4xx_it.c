@@ -72,7 +72,6 @@ extern DMA_HandleTypeDef hdma_adc2;
 extern DMA_HandleTypeDef hdma_adc3;
 extern DMA_HandleTypeDef hdma_adc4;
 extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim8;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
 
@@ -278,6 +277,7 @@ void DMA1_Channel4_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
+	GPIOB->BSRR = (uint32_t)GPIO_PIN_9;
 	//HAL_GPIO_WritePin(LED, GPIO_PIN_SET );	// Useful for timing
 
 	/* Sample ADCs */
@@ -295,7 +295,7 @@ void TIM2_IRQHandler(void)
 	/* increment loop count */
 	controller.loop_count++;
 	//HAL_GPIO_WritePin(LED, GPIO_PIN_RESET );
-
+	GPIOB->BRR = (uint32_t)GPIO_PIN_9;
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
@@ -320,20 +320,6 @@ void USART3_IRQHandler(void)
   /* USER CODE BEGIN USART3_IRQn 1 */
 
   /* USER CODE END USART3_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM8 update interrupt.
-  */
-void TIM8_UP_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM8_UP_IRQn 0 */
-
-  /* USER CODE END TIM8_UP_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim8);
-  /* USER CODE BEGIN TIM8_UP_IRQn 1 */
-
-  /* USER CODE END TIM8_UP_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

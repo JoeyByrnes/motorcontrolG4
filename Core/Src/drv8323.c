@@ -11,6 +11,7 @@
 #include "usart.h"
 #include "hw_config.h"
 
+
 uint16_t drv_spi_write(DRVStruct * drv, uint16_t val){
 	drv->spi_tx_word = val;
 	HAL_GPIO_WritePin(DRV_CS, GPIO_PIN_RESET ); 	// CS low

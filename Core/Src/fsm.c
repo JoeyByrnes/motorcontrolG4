@@ -18,6 +18,9 @@
 #include "position_sensor.h"
 #include "drv8323.h"
 
+#define DISABLE_MOTOR HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+#define ENABLE_MOTOR HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+
  void run_fsm(FSMStruct * fsmstate){
 	 /* run_fsm is run every commutation interrupt cycle */
 
@@ -102,8 +105,7 @@
 				//printf("Entering Encoder Mode\r\n");
 				break;
 			case MOTOR_MODE:
-
-				//printf("Entering Motor Mode\r\n");
+				// printf("Entering Motor Mode\r\n");
 				HAL_GPIO_WritePin(LED, GPIO_PIN_SET );
 				reset_foc(&controller);
 				drv_enable_gd(drv);
@@ -196,13 +198,16 @@
 					ps_sample(&comm_encoder, DT);
 					int zero_count = comm_encoder.count;
 					M_ZERO = zero_count;
-					if (!preference_writer_ready(prefs)){ preference_writer_open(&prefs);}
+					if (!preference_writer_ready(prefs))
+					{
+						preference_writer_open(&prefs);
+					}
 					preference_writer_flush(&prefs);
 					preference_writer_close(&prefs);
 					preference_writer_load(prefs);
 					printf("\n\r  Saved new zero position:  %d\n\r\n\r", M_ZERO);
 					break;
-				}
+			}
 			break;
 		case SETUP_MODE:
 			if(fsm_input == ENTER_CMD){
@@ -239,6 +244,7 @@
 	    printf(" s - Setup\n\r");
 	    printf(" e - Display Encoder\n\r");
 	    printf(" z - Set Zero Position\n\r");
+	    //printf(" r - Reboot Controller\n\r");
 	    printf(" esc - Exit to Menu\n\r");
 
 	    //gpio.led->write(0);
@@ -355,7 +361,10 @@
 	 memset(&fsmstate->cmd_buff, 0, sizeof(fsmstate->cmd_buff));
  }
 
- void enter_motor_mode(void){
-
- }
+// void enter_motor_mode(void){
+//	 ENABLE_MOTOR;
+//	 controller.ovp_flag = 0;
+//	 reset_foc(&controller);                                                   // Current Setpoints
+//	 printf("\n\r Entering Motor Mode \n\r");
+// }
 

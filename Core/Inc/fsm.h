@@ -29,6 +29,7 @@ extern "C" {
 #define ENCODER_CMD			'e'
 #define SETUP_CMD			's'
 #define ZERO_CMD			'z'
+#define REBOOT_CMD			'r'
 #define ENTER_CMD			13
 
 

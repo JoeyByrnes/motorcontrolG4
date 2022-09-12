@@ -29,9 +29,9 @@
 /* SPI encoder */
 #define ENC_SPI			hspi2				// Encoder SPI handle
 #define ENC_CS			GPIOB, GPIO_PIN_11	// Encoder SPI CS pin
-#define ENC_CPR			65536				// Encoder counts per revolution
+#define ENC_CPR			16384				// Encoder counts per revolution
 #define INV_CPR			1.0f/ENC_CPR
-#define ENC_READ_WORD	0x00				// Encoder read command
+#define ENC_READ_WORD	0x3FFF				// Encoder read command
 
 /* Misc. GPIO */
 #define LED         	GPIOC, GPIO_PIN_5	// LED Pin

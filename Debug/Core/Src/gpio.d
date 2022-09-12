@@ -21,8 +21,6 @@ Core/Src/gpio.o: ../Core/Src/gpio.c ../Core/Inc/gpio.h ../Core/Inc/main.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_adc.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc_ex.h \
- ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dac.h \
- ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dac_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_exti.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_fdcan.h \
  ../Core/Inc/stm32g4xx_hal_flash.h \
@@ -61,8 +59,6 @@ Core/Src/gpio.o: ../Core/Src/gpio.c ../Core/Inc/gpio.h ../Core/Inc/main.h \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_adc.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc_ex.h:
-../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dac.h:
-../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dac_ex.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_exti.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_fdcan.h:
 ../Core/Inc/stm32g4xx_hal_flash.h:

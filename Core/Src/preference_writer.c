@@ -42,22 +42,22 @@ void preference_writer_write_float(float x, int index) {
 
 void preference_writer_flush(PreferenceWriter * pr) {
     int offs;
-    for (offs = 0; offs < 256; offs++) {
+    for (offs = 0; offs < MAX_INTS_IN_FLASH; offs++) {
         flash_writer_write_int(pr->fw, offs, __int_reg[offs]);
     }
-    for (; offs < 320; offs++) {
-        flash_writer_write_float(pr->fw, offs, __float_reg[offs - 256]);
+    for (; offs < MAX_INTS_IN_FLASH+MAX_FLOATS_IN_FLASH; offs++) {
+        flash_writer_write_float(pr->fw, offs, __float_reg[offs - MAX_INTS_IN_FLASH]);
     }
     pr->ready = false;
 }
 
 void preference_writer_load(PreferenceWriter pr) {
     int offs;
-    for (offs = 0; offs < 256; offs++) {
+    for (offs = 0; offs < MAX_INTS_IN_FLASH; offs++) {
         __int_reg[offs] = flash_read_int(pr.fw, offs);
     }
-    for(; offs < 320; offs++) {
-        __float_reg[offs - 256] = flash_read_float(pr.fw, offs);
+    for(; offs < MAX_INTS_IN_FLASH+MAX_FLOATS_IN_FLASH; offs++) {
+        __float_reg[offs - MAX_INTS_IN_FLASH] = flash_read_float(pr.fw, offs);
     }
 }
 
