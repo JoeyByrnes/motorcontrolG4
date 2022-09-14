@@ -14,4 +14,3 @@
 ../Core/Src/stm32g4xx_it.c:278:6:FDCAN1_IT0_IRQHandler	8	static
 ../Core/Src/stm32g4xx_it.c:292:6:TIM2_IRQHandler	8	static
 ../Core/Src/stm32g4xx_it.c:337:6:USART3_IRQHandler	16	static
-../Core/Src/stm32g4xx_it.c:355:6:can_tx_rx	88	static

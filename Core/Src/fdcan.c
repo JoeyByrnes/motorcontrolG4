@@ -140,24 +140,22 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle)
 
 void can_rx_init(CANRxMessage *msg){
 
-	FDCAN_FilterTypeDef conf;
+	msg->filter.IdType = FDCAN_STANDARD_ID;
+	msg->filter.FilterIndex = 0;
+	msg->filter.FilterType = FDCAN_FILTER_MASK;
+	msg->filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+	msg->filter.FilterID1 = CAN_ID;
+	msg->filter.FilterID2 = 0x7FF;
 
-	conf.IdType = FDCAN_STANDARD_ID;
-	conf.FilterIndex = 0;
-	conf.FilterType = FDCAN_FILTER_MASK;
-	conf.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
-	conf.FilterID1 = CAN_ID;
-	conf.FilterID2 = 0x7FF;
-
-	if (HAL_FDCAN_ConfigFilter(&CAN_H, &conf) != HAL_OK)
+	if (HAL_FDCAN_ConfigFilter(&CAN_H, &msg->filter) != HAL_OK)
 	{
 		Error_Handler();
 	}
 
-	if (HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE) != HAL_OK)
-	{
-		Error_Handler();
-	}
+//	if (HAL_FDCAN_ConfigGlobalFilter(&CAN_H, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE) != HAL_OK)
+//	{
+//		Error_Handler();
+//	}
 
 }
 

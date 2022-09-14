@@ -352,28 +352,4 @@ void USART3_IRQHandler(void)
 
 /* USER CODE BEGIN 1 */
 
-void can_tx_rx(void){
-
-	HAL_FDCAN_GetRxMessage(&CAN_H, FDCAN_RX_FIFO0, &can_rx.rx_header, can_rx.data);
-
-	pack_reply(&can_tx, CAN_ID,  comm_encoder.angle_multiturn[0]/GR, comm_encoder.velocity/GR, controller.i_q_filt*KT*GR);
-
-	HAL_FDCAN_AddMessageToTxFifoQ(&CAN_H, &can_tx.tx_header, can_tx.data);
-
-	if(((can_rx.data[0]==0xFF) & (can_rx.data[1]==0xFF) & (can_rx.data[2]==0xFF) & (can_rx.data[3]==0xFF) & (can_rx.data[4]==0xFF) & (can_rx.data[5]==0xFF) & (can_rx.data[6]==0xFF) & (can_rx.data[7]==0xFC))){
-		update_fsm(&state, MOTOR_CMD);
-	}
-	else if(((can_rx.data[0]==0xFF) & (can_rx.data[1]==0xFF) & (can_rx.data[2]==0xFF) & (can_rx.data[3]==0xFF) * (can_rx.data[4]==0xFF) & (can_rx.data[5]==0xFF) & (can_rx.data[6]==0xFF) & (can_rx.data[7]==0xFD))){
-		update_fsm(&state, MENU_CMD);
-	}
-	else if(((can_rx.data[0]==0xFF) & (can_rx.data[1]==0xFF) & (can_rx.data[2]==0xFF) & (can_rx.data[3]==0xFF) * (can_rx.data[4]==0xFF) & (can_rx.data[5]==0xFF) & (can_rx.data[6]==0xFF) & (can_rx.data[7]==0xFE))){
-		update_fsm(&state, ZERO_CMD);
-	}
-	else{
-		unpack_cmd(can_rx, controller.commands);
-		controller.timeout = 0;
-	}
-
-}
-
 /* USER CODE END 1 */
