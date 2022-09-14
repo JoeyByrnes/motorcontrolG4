@@ -165,10 +165,6 @@ int main(void)
   preference_writer_init(&prefs, 0);
   preference_writer_load(prefs);
 
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
-
-
-
   /* Sanitize configs in case flash is empty*/
   if(E_ZERO==-1){E_ZERO = 0;}
   if(M_ZERO==-1){M_ZERO = 0;}
@@ -182,7 +178,7 @@ int main(void)
   if(isnan(TEMP_MAX) || TEMP_MAX==-1){TEMP_MAX = 125.0f;}
   if(isnan(I_MAX_CONT) || I_MAX_CONT==-1){I_MAX_CONT = 14.0f;}
   if(isnan(I_CAL)||I_CAL==-1){I_CAL = 5.0f;}
-  if(isnan(PPAIRS) || PPAIRS==-1){PPAIRS = 21.0f;}
+  if(isnan(PPAIRS) || PPAIRS==-1){PPAIRS = 14.0f;}
   if(isnan(GR) || GR==-1){GR = 1.0f;}
   if(isnan(KT) || KT==-1){KT = 1.0f;}
   if(isnan(KP_MAX) || KP_MAX==-1){KP_MAX = 500.0f;}
@@ -211,6 +207,7 @@ int main(void)
   /* commutation encoder setup */
   comm_encoder.m_zero = M_ZERO;
   comm_encoder.e_zero = E_ZERO;
+  PPAIRS = 14.0f; //JB
   comm_encoder.ppairs = PPAIRS;
   ps_warmup(&comm_encoder, 100);			// clear the noisy data when the encoder first turns on
 
@@ -219,40 +216,156 @@ int main(void)
   //for(int i = 0; i<128; i++){printf("%d\r\n", comm_encoder.offset_lut[i]);}
 
   /* Turn on ADCs */
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_Start(&hadc2);
-  HAL_ADC_Start(&hadc3);
-  HAL_ADC_Start(&hadc4);//JB
+//  HAL_ADC_Start(&hadc1);
+//  HAL_ADC_Start(&hadc2);
+//  HAL_ADC_Start(&hadc3);
+//  HAL_ADC_Start(&hadc4);//JB
 
   /* DRV8323 setup */
   HAL_GPIO_WritePin(DRV_CS, GPIO_PIN_SET ); 	// CS high
   HAL_GPIO_WritePin(ENABLE_PIN, GPIO_PIN_SET );
-  HAL_Delay(1);
+//  HAL_Delay(1);
+//  drv_calibrate(drv);
+//  HAL_Delay(1);
+//  drv_write_DCR(drv, 0x0, DIS_GDF_EN, 0x0, PWM_MODE_3X, 0x0, 0x0, 0x0, 0x0, 0x1);
+//  HAL_Delay(1);
+//  int CSA_GAIN;
+//  if(I_MAX <= 40.0f){CSA_GAIN = CSA_GAIN_40;}	// Up to 40A use 40X amplifier gain
+//  else{CSA_GAIN = CSA_GAIN_20;}					// From 40-60A use 20X amplifier gain.  (Make this generic in the future)
+//  drv_write_CSACR(drv, 0x0, 0x1, 0x0, CSA_GAIN_40, 0x0, 0x1, 0x1, 0x1, SEN_LVL_0_25);
+//  HAL_Delay(1);
+//  drv_write_CSACR(drv, 0x0, 0x1, 0x0, CSA_GAIN, 0x1, 0x0, 0x0, 0x0, SEN_LVL_0_25);
+//  HAL_Delay(1);
+//  zero_current(&controller);
+//  HAL_Delay(1);
+//  drv_write_OCPCR(drv, TRETRY_50US, DEADTIME_50NS, OCP_RETRY, OCP_DEG_4US, VDS_LVL_0_45);
+//
+//  HAL_Delay(1);
+//  drv_disable_gd(drv);
+//  HAL_Delay(1);
+
+ //drv_enable_gd(drv);
+
+
+  //=======================================================================================================================================
   //drv_calibrate(drv);
   HAL_Delay(1);
-  drv_write_DCR(drv, 0x0, DIS_GDF_EN, 0x0, PWM_MODE_3X, 0x0, 0x0, 0x0, 0x0, 0x1);
+  drv_write_DCR(drv, 0x0, DIS_GDF_DIS, 0x0, PWM_MODE_3X, 0x0, 0x0, 0x0, 0x0, 0x1);
   HAL_Delay(1);
-  int CSA_GAIN;
-  if(I_MAX <= 40.0f){CSA_GAIN = CSA_GAIN_40;}	// Up to 40A use 40X amplifier gain
-  else{CSA_GAIN = CSA_GAIN_20;}					// From 40-60A use 20X amplifier gain.  (Make this generic in the future)
-  drv_write_CSACR(drv, 0x0, 0x1, 0x0, CSA_GAIN_40, 0x0, 0x1, 0x1, 0x1, SEN_LVL_0_25);
+  drv_write_DCR(drv, 0x0, DIS_GDF_DIS, 0x0, PWM_MODE_3X, 0x0, 0x0, 0x1, 0x0, 0x1);
   HAL_Delay(1);
-  drv_write_CSACR(drv, 0x0, 0x1, 0x0, CSA_GAIN, 0x1, 0x0, 0x0, 0x0, SEN_LVL_0_25);
+
+  drv_write_CSACR(drv, 0x0, 0x1, 0x0, CSA_GAIN_40, 0x0, 0x1, 0x1, 0x1, SEN_LVL_1_0);   // calibrate shunt amplifiers
+  HAL_Delay(1);
+  drv_write_CSACR(drv, 0x0, 0x1, 0x0, CSA_GAIN_40, 0x1, 0x0, 0x0, 0x0, SEN_LVL_1_0);
   HAL_Delay(1);
   zero_current(&controller);
   HAL_Delay(1);
-  drv_write_OCPCR(drv, TRETRY_50US, DEADTIME_50NS, OCP_RETRY, OCP_DEG_4US, VDS_LVL_0_45);
+  drv_write_OCPCR(drv, TRETRY_50US, DEADTIME_50NS, OCP_NONE, OCP_DEG_8US, VDS_LVL_1_88);
+  HAL_Delay(1);
+
   HAL_Delay(1);
   drv_disable_gd(drv);
   HAL_Delay(1);
 
-// drv_enable_gd(drv);
-  printf("ADC A OFFSET: %d     ADC B OFFSET: %d\r\n", controller.adc_a_offset, controller.adc_b_offset);
+
+  ADC1->CR &= ~ADC_CR_DEEPPWD;
+  ADC2->CR &= ~ADC_CR_DEEPPWD;
+  ADC3->CR &= ~ADC_CR_DEEPPWD;
+  ADC4->CR &= ~ADC_CR_DEEPPWD;
+
+  ADC1->CR |= ADC_CR_ADVREGEN;
+  ADC2->CR |= ADC_CR_ADVREGEN;
+  ADC3->CR |= ADC_CR_ADVREGEN;
+  ADC4->CR |= ADC_CR_ADVREGEN;
+
+  HAL_Delay(1);
+
+  ADC1->CR |= ADC_CR_ADCAL;
+  ADC2->CR |= ADC_CR_ADCAL;
+  ADC3->CR |= ADC_CR_ADCAL;
+  ADC4->CR |= ADC_CR_ADCAL;
+
+  while ((ADC1->CR & ADC_CR_ADCAL) ||
+		  (ADC2->CR & ADC_CR_ADCAL) ||
+		  (ADC3->CR & ADC_CR_ADCAL) ||
+		  (ADC4->CR & ADC_CR_ADCAL));
+
+  HAL_Delay(1);
+
+  ADC1->ISR |= ADC_ISR_ADRDY;
+  ADC2->ISR |= ADC_ISR_ADRDY;
+  ADC3->ISR |= ADC_ISR_ADRDY;
+  ADC4->ISR |= ADC_ISR_ADRDY;
+
+  ADC1->CR |= ADC_CR_ADEN;
+  ADC2->CR |= ADC_CR_ADEN;
+  ADC3->CR |= ADC_CR_ADEN;
+  ADC4->CR |= ADC_CR_ADEN;
+
+  while (!(ADC1->ISR & ADC_ISR_ADRDY) ||
+		  !(ADC2->ISR & ADC_ISR_ADRDY) ||
+		  !(ADC3->ISR & ADC_ISR_ADRDY) ||
+		  !(ADC4->ISR & ADC_ISR_ADRDY));
+
+  ADC1->ISR |= ADC_ISR_ADRDY;
+  ADC2->ISR |= ADC_ISR_ADRDY;
+  ADC3->ISR |= ADC_ISR_ADRDY;
+  ADC4->ISR |= ADC_ISR_ADRDY;
+
+  ADC1->CFGR &= ~(ADC_CFGR_CONT);
+  ADC2->CFGR &= ~(ADC_CFGR_CONT);
+  ADC3->CFGR &= ~(ADC_CFGR_CONT);
+  ADC4->CFGR &= ~(ADC_CFGR_CONT);
+
+  // START ANALOG CALIBRATION:
+
+  ADC1->CR |= 1; // Enable ADC1
+  ADC2->CR |= 1; // Enable ADC2
+  ADC3->CR |= 1; // Enable ADC3
+  ADC4->CR |= 1; // Enable ADC4
+
+  HAL_Delay(1);
+
+  printf("Calculating ADC Offsets...\n");
+  uint32_t offset1=0;
+  uint32_t offset2=0;
+  uint32_t offset3=0;
+
+  for(int c=0;c<100;c++){
+	  ADC1->CR |= 0x0004;
+	  ADC2->CR |= 0x0004;
+	  ADC3->CR |= 0x0004;
+	  HAL_Delay(1);
+	  offset3 += ADC3->DR;
+	  offset2 += ADC2->DR;
+	  offset1 += ADC1->DR;
+  }
+
+  controller.adc_c_offset = (int)((double)offset3/100.0f);
+  controller.adc_b_offset = (int)((double)offset2/100.0f);
+  controller.adc_a_offset = (int)((double)offset1/100.0f);
+
+  //=======================================================================================================================================
+
+  printf("ADC A OFFSET: %d, \tADC B OFFSET: %d \tADC C OFFSET: %d\r\n", controller.adc_a_offset, controller.adc_b_offset, controller.adc_c_offset);
 
   /* Turn on PWM */
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+//  if (HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1) != HAL_OK)
+//  {
+//	  Error_Handler();
+//  }
+//  if (HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2) != HAL_OK)
+//  {
+//	  Error_Handler();
+//  }
+//  if (HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3) != HAL_OK)
+//  {
+//	  Error_Handler();
+//  }
 
   /* CAN setup */
   can_rx_init(&can_rx);//JB
@@ -279,6 +392,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
 

@@ -277,14 +277,28 @@ void DMA1_Channel4_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
-	GPIOB->BSRR = (uint32_t)GPIO_PIN_9;
+	//GPIOB->BSRR = (uint32_t)GPIO_PIN_9;
 	//HAL_GPIO_WritePin(LED, GPIO_PIN_SET );	// Useful for timing
 
 	/* Sample ADCs */
-	analog_sample(&controller);
+//	analog_sample(&controller);
+	ADC1->CR |= 0x0004;
+	ADC2->CR |= 0x0004;
+	ADC3->CR |= 0x0004;
+	ADC4->CR |= 0x0004;
 
 	/* Sample position sensor */
 	ps_sample(&comm_encoder, DT);
+
+	controller.adc_a_raw = ADC1->DR;
+	controller.adc_b_raw = ADC2->DR;
+	controller.adc_c_raw = ADC3->DR;
+	controller.adc_vbus_raw = ADC4->DR;
+	controller.v_bus = (float)controller.adc_vbus_raw*V_SCALE;
+
+	controller.i_a = controller.i_scale*(float)(controller.adc_a_raw - controller.adc_a_offset);    // Calculate phase currents from ADC readings
+	controller.i_b = controller.i_scale*(float)(controller.adc_b_raw - controller.adc_b_offset);
+	controller.i_c = controller.i_scale*(float)(controller.adc_c_raw - controller.adc_c_offset);
 
 	/* Run Finite State Machine */
 	run_fsm(&state);
@@ -295,7 +309,7 @@ void TIM2_IRQHandler(void)
 	/* increment loop count */
 	controller.loop_count++;
 	//HAL_GPIO_WritePin(LED, GPIO_PIN_RESET );
-	GPIOB->BRR = (uint32_t)GPIO_PIN_9;
+	//GPIOB->BRR = (uint32_t)GPIO_PIN_9;
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */

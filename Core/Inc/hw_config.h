@@ -4,9 +4,9 @@
 
 /* Timer and PWM */
 #define TIM_PWM			htim2				// PWM/ISR timer handle
-#define TIM_CH_U		TIM_CHANNEL_1		// Terminal U timer channel
+#define TIM_CH_U		TIM_CHANNEL_3		// Terminal U timer channel
 #define TIM_CH_V		TIM_CHANNEL_2		// Terminal V timer channel
-#define TIM_CH_W		TIM_CHANNEL_3		// Terminal W timer channel
+#define TIM_CH_W		TIM_CHANNEL_1		// Terminal W timer channel
 #define INVERT_DTC		1					// PWM inverting (1) or non-inverting (0)
 
 /* ISRs */
@@ -22,30 +22,30 @@
 #define ADC_CH_VBUS		hadc4				// Bus voltage ADC channel handle.  0 = unused
 
 /* DRV Gate drive */
-#define ENABLE_PIN 		GPIOA, GPIO_PIN_3  // Enable gate drive pin.
+#define ENABLE_PIN 		GPIOA,GPIO_PIN_3  // Enable gate drive pin.
 #define DRV_SPI			hspi1				// DRV SPI handle
-#define DRV_CS			GPIOC, GPIO_PIN_4	// DRV CS pin
+#define DRV_CS			GPIOC,GPIO_PIN_4	// DRV CS pin
 
 /* SPI encoder */
 #define ENC_SPI			hspi2				// Encoder SPI handle
-#define ENC_CS			GPIOB, GPIO_PIN_11	// Encoder SPI CS pin
+#define ENC_CS			GPIOB,GPIO_PIN_11	// Encoder SPI CS pin
 #define ENC_CPR			16384				// Encoder counts per revolution
 #define INV_CPR			1.0f/ENC_CPR
 #define ENC_READ_WORD	0x3FFF				// Encoder read command
 
 /* Misc. GPIO */
-#define LED         	GPIOC, GPIO_PIN_5	// LED Pin
+#define LED         	GPIOC,GPIO_PIN_5	// LED Pin
 
 /* CAN */
 #define CAN_H			hfdcan1				// CAN handle
 
 /* Other hardware-related constants */
 #define I_SCALE 			0.0201416f  // Amps per A/D Count at 40X amplifier gain
-#define V_SCALE 			0.0128906f    // Bus volts per A/D Count
+#define V_SCALE 			1.592*0.0128906f    // Bus volts per A/D Count !!!!!!!should be 0.0179475f //JB
 #define DTC_MAX 			0.94f          	// Max duty cycle
 #define DTC_MIN 			0.0f          	// Min duty cycle
 #define DTC_COMP 			0.000f          // deadtime compensation (100 ns / 25 us)
-#define DT					.000025f		// Loop period
+#define DT					.000025f		// Loop period // change back to .000025f later //JB
 #define EN_ENC_LINEARIZATION 1				// Enable/disable encoder linearization
 
 

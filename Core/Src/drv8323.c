@@ -11,8 +11,26 @@
 #include "usart.h"
 #include "hw_config.h"
 
+#define DRV_CS_HIGH GPIOC->BSRR=(uint32_t)GPIO_PIN_4
+#define DRV_CS_LOW GPIOC->BRR=(uint32_t)GPIO_PIN_4
+
+//uint16_t drv_spi_write_cmsis(DRVStruct * drv, uint16_t val)
+//{
+//	DRV_CS_LOW;
+//	while ((SPI1->SR & SPI_SR_BSY) != 0);
+//	SPI1->DR = val;
+//	SPI1->CR1 |= SPI_CR1_SPE;
+//	while ((SPI1->SR & SPI_SR_RXNE) == 0);
+//	uint16_t result = SPI1->DR;
+//	while ((SPI1->SR & SPI_SR_TXE) == 0);
+//	while ((SPI1->SR & SPI_SR_BSY) != 0);
+//	SPI1->CR1 &= ~(SPI_CR1_SPE);
+//	DRV_CS_HIGH;
+//	return (result);
+//}
 
 uint16_t drv_spi_write(DRVStruct * drv, uint16_t val){
+//	return drv_spi_write_cmsis(drv, val);
 	drv->spi_tx_word = val;
 	HAL_GPIO_WritePin(DRV_CS, GPIO_PIN_RESET ); 	// CS low
 	HAL_SPI_TransmitReceive(&DRV_SPI, (uint8_t*)drv->spi_tx_buff, (uint8_t *)drv->spi_rx_buff, 1, 100);
