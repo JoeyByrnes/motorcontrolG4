@@ -22,7 +22,7 @@
 #include "drv8323.h"
 #include "foc.h"
 #include "calibration.h"
-#include "can.h"
+#include "fdcan.h"
 
 typedef struct{
     } GPIOStruct;

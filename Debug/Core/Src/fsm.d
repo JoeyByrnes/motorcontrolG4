@@ -39,7 +39,7 @@ Core/Src/fsm.o: ../Core/Src/fsm.c ../Core/Inc/fsm.h ../Core/Inc/usart.h \
  ../Core/Inc/spi.h ../Core/Inc/gpio.h ../Core/Inc/adc.h ../Core/Inc/tim.h \
  ../Core/Inc/position_sensor.h ../Core/Inc/preference_writer.h \
  ../Core/Inc/flash_writer.h ../Core/Inc/fsm.h ../Core/Inc/drv8323.h \
- ../Core/Inc/foc.h ../Core/Inc/calibration.h ../Core/Inc/can.h \
+ ../Core/Inc/foc.h ../Core/Inc/calibration.h ../Core/Inc/fdcan.h \
  ../Core/Inc/foc.h ../Core/Inc/math_ops.h ../Core/Inc/position_sensor.h \
  ../Core/Inc/drv8323.h
 ../Core/Inc/fsm.h:
@@ -95,7 +95,7 @@ Core/Src/fsm.o: ../Core/Src/fsm.c ../Core/Inc/fsm.h ../Core/Inc/usart.h \
 ../Core/Inc/drv8323.h:
 ../Core/Inc/foc.h:
 ../Core/Inc/calibration.h:
-../Core/Inc/can.h:
+../Core/Inc/fdcan.h:
 ../Core/Inc/foc.h:
 ../Core/Inc/math_ops.h:
 ../Core/Inc/position_sensor.h:

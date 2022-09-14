@@ -368,10 +368,12 @@ int main(void)
 //  }
 
   /* CAN setup */
-  can_rx_init(&can_rx);//JB
+  can_rx_init(&can_rx);
   can_tx_init(&can_tx);
-  //HAL_CAN_Start(&CAN_H); //start CAN//JB
-  //__HAL_CAN_ENABLE_IT(&CAN_H, CAN_IT_RX_FIFO0_MSG_PENDING); // Start can interrupt//JB
+
+  HAL_FDCAN_Start(&CAN_H);
+  HAL_FDCAN_ActivateNotification(&CAN_H, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0);
+
 
   /* Set Interrupt Priorities */
   HAL_NVIC_SetPriority(PWM_ISR, 0x0,0x0); // commutation > communication
@@ -455,6 +457,39 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+{
+	if((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET)
+	{
+		/* Retrieve Rx messages from RX FIFO0 */
+		if (HAL_FDCAN_GetRxMessage(&CAN_H, FDCAN_RX_FIFO0, &can_rx.rx_header, can_rx.data) != HAL_OK)
+		{
+			Error_Handler();
+		}
+		HAL_FDCAN_GetRxMessage(&CAN_H, FDCAN_RX_FIFO0, &can_rx.rx_header, can_rx.data);
+
+		pack_reply(&can_tx, CAN_ID,  comm_encoder.angle_multiturn[0]/GR, comm_encoder.velocity/GR, controller.i_q_filt*KT*GR);
+
+		HAL_FDCAN_AddMessageToTxFifoQ(&CAN_H, &can_tx.tx_header, can_tx.data);
+
+		if(((can_rx.data[0]==0xFF) & (can_rx.data[1]==0xFF) & (can_rx.data[2]==0xFF) & (can_rx.data[3]==0xFF) & (can_rx.data[4]==0xFF) & (can_rx.data[5]==0xFF) & (can_rx.data[6]==0xFF) & (can_rx.data[7]==0xFC))){
+			update_fsm(&state, MOTOR_CMD);
+		}
+		else if(((can_rx.data[0]==0xFF) & (can_rx.data[1]==0xFF) & (can_rx.data[2]==0xFF) & (can_rx.data[3]==0xFF) * (can_rx.data[4]==0xFF) & (can_rx.data[5]==0xFF) & (can_rx.data[6]==0xFF) & (can_rx.data[7]==0xFD))){
+			update_fsm(&state, MENU_CMD);
+		}
+		else if(((can_rx.data[0]==0xFF) & (can_rx.data[1]==0xFF) & (can_rx.data[2]==0xFF) & (can_rx.data[3]==0xFF) * (can_rx.data[4]==0xFF) & (can_rx.data[5]==0xFF) & (can_rx.data[6]==0xFF) & (can_rx.data[7]==0xFE))){
+			update_fsm(&state, ZERO_CMD);
+		}
+		else{
+			unpack_cmd(can_rx, controller.commands);
+			controller.timeout = 0;
+		}
+
+	}
+}
+
 
 /* USER CODE END 4 */
 

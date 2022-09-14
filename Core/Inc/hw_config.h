@@ -1,6 +1,8 @@
 #ifndef HW_CONFIG_H
 #define HW_CONFIG_H
 
+extern FDCAN_HandleTypeDef hfdcan1;
+
 
 /* Timer and PWM */
 #define TIM_PWM			htim2				// PWM/ISR timer handle
